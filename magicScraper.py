@@ -94,7 +94,7 @@ def Scrape(LINK, rows):
       #      print(findMatch, findOdds)
             if (isfloat(odds[0]) is True) and (isfloat(odds[1]) is True) and (isfloat(odds[2]) is True):
                 formattedOdds = '\n'.join([odds[0], odds[1], odds[2]])
-                print(teams, ' ', formattedOdds)
+        #        print(teams, ' ', formattedOdds)
                 totalOdds.append(formattedOdds)
                 totalTeams.append(teams)
                 totalLinks.append(betLink)
