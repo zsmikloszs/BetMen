@@ -19,13 +19,13 @@ bookies = []
 def Scrape(LINK, rows):
     options = Options()
     options.add_argument("window-size=2560,1080")
-    options.headless = True
+    #options.headless = True
     #options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    #path = r'C:\Users\1\Documents\_FOCUS\Arbitrage Betting\V!\scrapers-RO\driver\chromedriver.exe'  # introduce your file's path inside '...'
-    #driver = webdriver.Chrome(path, options=options)
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    path = r'chromedriver'  # introduce your file's path inside '...'
+    driver = webdriver.Chrome(path, options=options)
+    #driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
     def understandRow(line):
         if '-' in line:
@@ -49,8 +49,6 @@ def Scrape(LINK, rows):
        # excludedList = [x for x in excludedList if ':' not in x]
         excludedList = [element.upper() for element in excludedList]
         teams = '\n'.join(excludedList)
-        if len(teams.split('\n')) > 2:
-            print(f'\n\n\n {teams} \n\n\n\n\n')
         return teams, odds
     def isfloat(num):
         try:
