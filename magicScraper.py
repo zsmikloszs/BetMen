@@ -1,7 +1,7 @@
 import re
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-#from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
 import time
 import pickle
@@ -23,7 +23,7 @@ def Scrape(LINK, rows):
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     #path = r'C:\Users\1\Documents\_FOCUS\Arbitrage Betting\V!\scrapers-RO\driver\chromedriver.exe'  # introduce your file's path inside '...'
-    driver = webdriver.Chrome(path, options=options)
+    #driver = webdriver.Chrome(path, options=options)
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
     def understandRow(line):

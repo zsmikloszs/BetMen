@@ -307,11 +307,11 @@ if __name__ == '__main__':
     listList = list(itertools.product(preparedData, preparedData, preparedData))
     y = [s for s in listList if s[0] != s[1] and s[1] != s[2] and s[0] != s[2]]
 
-    for boo in y:
-        matchTeams(boo, preparedData)
-  #  with concurrent.futures.ProcessPoolExecutor() as executor:
-  ##      for boo in y:
-  #          executor.submit(matchTeams, boo, preparedData)
+   # for boo in y:
+   #     matchTeams(boo, preparedData)
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        for boo in y:
+            executor.submit(matchTeams, boo, preparedData)
     #     partial_sum_four = functools.partial(matchTeams, y, preparedData)
     #     executor.submit(matchTeams, partial_sum_four)
 
