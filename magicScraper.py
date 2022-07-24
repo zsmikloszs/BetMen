@@ -23,7 +23,7 @@ def Scrape(LINK, rows):
     #options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    path = r'chromedriver'  # introduce your file's path inside '...'
+    path = r'chromedriver.exe'  # introduce your file's path inside '...'
     driver = webdriver.Chrome(path, options=options)
     #driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
