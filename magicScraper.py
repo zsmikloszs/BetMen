@@ -20,12 +20,12 @@ def Scrape(LINK, rows):
     options = Options()
     options.add_argument("window-size=2560,1080")
     #options.headless = True
-    #options.add_argument('--headless')
+    options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    path = r'chromedriver.exe'  # introduce your file's path inside '...'
-    driver = webdriver.Chrome(path, options=options)
-    #driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    #path = r'chromedriver'  # introduce your file's path inside '...'
+    #driver = webdriver.Chrome(path, options=options)
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
     def understandRow(line):
         if '-' in line:
