@@ -2,6 +2,7 @@ import re
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
 import pandas as pd
 import time
 import pickle
@@ -18,8 +19,8 @@ bookies = []
 def Scrape(LINK, rows):
     options = Options()
     options.add_argument("window-size=2560,1080")
- #   options.headless = True
-    options.add_argument('--headless')
+    options.headless = True
+    #options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     #path = r'C:\Users\1\Documents\_FOCUS\Arbitrage Betting\V!\scrapers-RO\driver\chromedriver.exe'  # introduce your file's path inside '...'
@@ -69,7 +70,7 @@ def Scrape(LINK, rows):
     driver.get(LINK)
     time.sleep(5)
     if bookie == 'www.unibet.ro':
-        driver.find_element(By.XPATH, "//button[@class='CybotCookiebotDialogBodyButton']").click()
+        driver.find_element(By.XPATH, "//button[text()='Permitere toate']").click()
     ### WAIT UNTIL ROW APPEARS !!!
     lines = driver.find_elements(By.XPATH, rows)
 

@@ -297,9 +297,9 @@ def trial():
 
 if __name__ == '__main__':
     t1 = time.perf_counter()
-    #main() #$$ RETURN BOOKIES
+    main() #$$ RETURN BOOKIES
     preparedData = {}
-    bookies = ['_temp/efortuna.ro.pkl', '_temp/ro.betano.com.pkl', '_temp/sports.sportingbet.ro.pkl', '_temp/superbet.ro.pkl', '_temp/www.888sport.ro.pkl', '_temp/www.admiral.ro.pkl', '_temp/www.betfair.ro.pkl', '_temp/www.casapariurilor.ro.pkl', '_temp/www.stanleybet.ro.pkl', '_temp/www.unibet.ro.pkl' ]
+    #bookies = ['_temp/efortuna.ro.pkl', '_temp/ro.betano.com.pkl', '_temp/sports.sportingbet.ro.pkl', '_temp/superbet.ro.pkl', '_temp/www.888sport.ro.pkl', '_temp/www.admiral.ro.pkl', '_temp/www.betfair.ro.pkl', '_temp/www.casapariurilor.ro.pkl', '_temp/www.stanleybet.ro.pkl', '_temp/www.unibet.ro.pkl' ]
     for booki in bookies:
         data = pickle.load(open(booki, 'rb'))
         preparedData[booki] = data
