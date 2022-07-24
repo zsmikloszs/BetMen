@@ -7,6 +7,7 @@ import itertools
 import time
 import concurrent.futures
 import requests
+import os
 
 
 dict_surebet= {}
@@ -184,10 +185,9 @@ def matchTeams(bookie, preparedData):
 
 if __name__ == '__main__':
     t1 = time.perf_counter()
-    subprocess.run("python3 _unibet.py & python3 _super.py & python3 _stanley.py & python3 _sporting.py & python3 _efortuna.py & wait", shell=True)
-    subprocess.run("python3 _casa.py & python3 _betfair.py & python3 _betano.py & python3 _admiral.py & python3 _888.py & wait", shell=True)
+    subprocess.run("python3 _unibet.py & python3 _super.py & python3 _stanley.py & python3 _sporting.py & python3 _efortuna.py & python3 _casa.py & python3 _betfair.py & python3 _betano.py & python3 _admiral.py & python3 _888.py & wait", shell=True)
     preparedData = {}
-    #bookies = ['_temp/efortuna.ro.pkl', '_temp/ro.betano.com.pkl', '_temp/sports.sportingbet.ro.pkl', '_temp/superbet.ro.pkl', '_temp/www.888sport.ro.pkl', '_temp/www.admiral.ro.pkl', '_temp/www.betfair.ro.pkl', '_temp/www.casapariurilor.ro.pkl', '_temp/www.stanleybet.ro.pkl', '_temp/www.unibet.ro.pkl' ]
+    bookies = os.listdir('_temp')
     for booki in bookies:
         data = pickle.load(open(booki, 'rb'))
         preparedData[booki] = data
