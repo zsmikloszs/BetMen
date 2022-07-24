@@ -68,6 +68,8 @@ def Scrape(LINK, rows):
 
     driver.get(LINK)
     time.sleep(5)
+    if bookie == 'www.unibet.ro':
+        driver.find_element(By.XPATH, "//button[@class='CybotCookiebotDialogBodyButton']").click()
     ### WAIT UNTIL ROW APPEARS !!!
     lines = driver.find_elements(By.XPATH, rows)
 
