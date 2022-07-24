@@ -182,46 +182,6 @@ def matchTeams(bookie, preparedData):
         dict_surebet[dictName] = df_surebet
         return surebet(df_surebet, dictName)
 
-
-def trial():
-
-    ## WINMASTERS # JS FAIL ########
-    LINK = 'https://www.winmasters.ro/ro/sports/i/'
-    rows = "//div[@class='MatchListGroup__Content']//div"
-
-    ## MAXBET.RO # SAME AS WINMASTERS !
-    LINK = 'https://www.maxbet.ro/ro/pariuri'
-    rows = "//div[@class='EventItem']"
-    odds =  ''### '3.90\n2.25\n2.45'
-    betLink = '' ### 'https://live.efortuna.ro/meci/LROFOOTBALL/LRO3368148'
-
-
-
-    Scrape(LINK, rows, match, odds)
-    TEAMS = ['Faska1Romaniaaaaa', 'nemteny', 'teny']
-    ODDS = ['11.1\n11.2\n11.3\n', '1.1\n1.2\n1.3\n', '1.1\n3.1\n1.1\n' ]
-    bookie = 'futura.ro'
-    prepareData(TEAMS, ODDS, bookie, '', '1x2')
-
-    TEAMS = ['Faska2Hunggggeery', 'nemteny', 'teny']
-    ODDS = ['11.1\n11.2\n11.3\n', '1.1\n1.2\n1.3\n', '5.2\n1.2\n1.2\n' ]
-    bookie = 'kutura.ro'
-    prepareData(TEAMS, ODDS, bookie, '', '1x2')
-
-    TEAMS = ['Faska3', 'nemteny', 'teny']
-    ODDS = ['11.1\n11.2\n11.3\n', '1.1\n1.2\n1.3\n', '1.3\n1.3\n4.3\n' ]
-    bookie = 'mutura.ro'
-    preparedData = {}
-
-    prepareData(TEAMS, ODDS, bookie, '', '1x2')
-    threeWayData = ['mutura.ro.pkl', 'kutura.ro.pkl', 'futura.ro.pkl']
-    for three in threeWayData:
-        data=  pickle.load(open(three, 'rb'))
-        preparedData[three] = data
-    threeWay(preparedData)
-
-
-
 if __name__ == '__main__':
     t1 = time.perf_counter()
     subprocess.run("python3 _unibet.py & python3 _super.py & python3 _stanley.py & python3 _sporting.py & python3 _efortuna.py & python3 _casa.py & python3 _betfair.py & python3 _betano.py & python3 _admiral.py & python3 _888.py &  wait", shell=True)
@@ -241,7 +201,6 @@ if __name__ == '__main__':
             executor.submit(matchTeams, boo, preparedData)
     #     partial_sum_four = functools.partial(matchTeams, y, preparedData)
     #     executor.submit(matchTeams, partial_sum_four)
-
 
     t2 = time.perf_counter()
     print(f'Finished in {t2 - t1} seconds')
