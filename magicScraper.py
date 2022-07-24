@@ -68,7 +68,7 @@ def Scrape(LINK, rows):
     totalLinks = []
 
     driver.get(LINK)
-    time.sleep(15)
+    time.sleep(25)
     if bookie == 'www.unibet.ro':
         driver.find_element(By.XPATH, "//button[text()='Permitere toate']").click()
     ### WAIT UNTIL ROW APPEARS !!!
