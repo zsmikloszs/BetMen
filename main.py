@@ -1,25 +1,20 @@
 import subprocess
-import pandas as pd
-import pickle
 from magicScraper import *
-#from surebet import *
 import swifter
-
 import pandas as pd
 from fuzzywuzzy import process, fuzz
-from sympy import symbols, Eq, solve
 import itertools
-import datetime
 import time
-import functools
-import swifter
 import concurrent.futures
-
 import requests
 
 
 dict_surebet= {}
 total_stake = 500 # RON
+
+pd.set_option('display.max_rows', 500)
+pd.set_option('display.max_columns', 500)
+pd.set_option('display.width', 1000)
 
 def telegram_bot_sendtext(bot_message):
 
@@ -188,72 +183,6 @@ def matchTeams(bookie, preparedData):
         return surebet(df_surebet, dictName)
 
 
-pd.set_option('display.max_rows', 500)
-pd.set_option('display.max_columns', 500)
-pd.set_option('display.width', 1000)
-
-#scrape in parallel (at the same time)
-
-
-def main():
-    # UNIBET
-    LINK = 'https://www.unibet.ro/betting/sports/starting-soon'
-    rows = "//li[@class='KambiBC-sandwich-filter__event-list-item']"
-    Scrape(LINK, rows)
-
-    # betano
-    LINK = 'https://ro.betano.com/sport/fotbal/urmatoarele-12-ore/'
-    rows = "//tr[@class='events-list__grid__event']"
-    rows = "//tr[contains(@data-qa,'pre-event')]"
-    Scrape(LINK, rows)
-
-    ## betfair
-    LINK = 'https://www.betfair.ro/sport/football'
-    rows = "//li[contains(@class,'com-coupon-line')]"
-    Scrape(LINK, rows)
-
-    # 888 SPORT # BUGOS - KELL MENU NYITOGATOT CSINALNI - NEM FONTOS
-    LINK = 'https://www.888sport.ro/fotbal/#/filter/football'
-    rows = "//li[contains(@class,'KambiBC-event-item')]"
-    Scrape(LINK, rows)
-
-    ## EFORTUNA # BUGGOS # NINCS CSAPAT NEV
-    LINK = "https://efortuna.ro/pariuri-online/fotbal"
-    rows = "//tr[@class='tablesorter-hasChildRow']"
-    Scrape(LINK, rows)
-
-    ### ADMIRAL
-    LINK = 'https://www.admiral.ro/ro/sporturi#sports-hub/football/romania/liga_i'
-    rows = "//li[@class='KambiBC-sandwich-filter__event-list-item']"
-    Scrape(LINK, rows)
-
-    # CASA PARIURILOR
-    LINK = 'https://www.casapariurilor.ro/pariuri-online/fotbal'
-    rows = "//tr[@class='tablesorter-hasChildRow']"
-    Scrape(LINK, rows)
-
-    ## STANLEYBET -- NINCS LINK
-    LINK = 'https://www.stanleybet.ro/pariuri-sportive#filter/football'
-    rows = "//div[@class='KambiBC-event-item__event-wrapper']"
-    Scrape(LINK, rows)
-
-    # SUPERBET -- ODDS ARE SHOWN AS DUPLICATES
-    LINK = 'https://superbet.ro/pariuri-sportive/fotbal'
-    rows = "//div[@class='event-row']"
-    Scrape(LINK, rows)
-
-    # SPORTINGBET
-    LINK = "https://sports.sportingbet.ro/ro/sports/fotbal-4/ast%C4%83zi"
-    rows = "//div[@class='grid-event-wrapper']"
-    Scrape(LINK, rows)
-
-    # NETBET -- AD ODDSOKAT AT KELL ALAKITANI EU-RA
-    LINK = 'https://sport.netbet.ro/en-ro/'
-    rows = "//div[@class='rj-ev-list__ev-card__inner']"
-    #Scrape(LINK, rows)
-
-  #  threeWay(preparedData)
-
 def trial():
 
     ## WINMASTERS # JS FAIL ########
@@ -295,7 +224,7 @@ def trial():
 
 if __name__ == '__main__':
     t1 = time.perf_counter()
-    subprocess.run("python3 _unibet.py & python3 _betfair.py & python3 _betano.py & wait", shell=True)
+    subprocess.run("python3 _unibet.py & python3 _super.py & python3 _stanley.py & python3 _sporting.py & python3 _efortuna.py & python3 _casa.py & python3 _betfair.py & python3 _betano.py & python3 _admiral.py & python3 _888.py &  wait", shell=True)
     preparedData = {}
     #bookies = ['_temp/efortuna.ro.pkl', '_temp/ro.betano.com.pkl', '_temp/sports.sportingbet.ro.pkl', '_temp/superbet.ro.pkl', '_temp/www.888sport.ro.pkl', '_temp/www.admiral.ro.pkl', '_temp/www.betfair.ro.pkl', '_temp/www.casapariurilor.ro.pkl', '_temp/www.stanleybet.ro.pkl', '_temp/www.unibet.ro.pkl' ]
     for booki in bookies:
