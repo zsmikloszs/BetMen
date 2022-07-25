@@ -1,7 +1,7 @@
 import re
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+#from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 import pandas as pd
 import time
@@ -20,9 +20,9 @@ def Scrape(LINK, rows):
     options = Options()
  #   options.add_argument("window-size=2560,1080")
     #options.headless = True
-    options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
+  #  options.add_argument('--headless')
+  #  options.add_argument('--no-sandbox')
+  #  options.add_argument('--disable-dev-shm-usage')
     path = r'/root/username/1/chromedriver'  # introduce your file's path inside '...'
     driver = webdriver.Chrome(path, options=options)
     #driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
