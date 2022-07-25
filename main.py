@@ -84,7 +84,7 @@ def prettyResults(dict_surebet, frame, result, od1, odX, od2):
     bookiesC = bookies[2].replace('_', '').replace('temp/', '')
 
     results = beat_bookies(odds1, odds2, odds3, total_stake)
-    if float(results['Benefit1']) >= 10:
+    if float(results['Benefit1']) >= 5:
 
         telegram_bot_sendtext(f"Benefit {results['Benefit1']} and {results['Profit1']} RON profit on every {total_stake} RON with:\n"
                               f"- {bookiesA} -\n    OD 1: {odds1}    PUT:{results['Stakes1']} RON\n    {teamsA}\n    EXPECTED PAYOUT: {results['Payout1']} RON\nLINK: \n\n"
@@ -181,85 +181,29 @@ def matchTeams(bookie, preparedData):
         return surebet(df_surebet, dictName)
 
 if __name__ == '__main__':
-    t1 = time.perf_counter()
+        while True:
+        t1 = time.perf_counter()
 
-    ## MULTI PROCESSING
-   # subprocess.run("python3 _unibet.py & python3 _super.py & python3 _stanley.py & python3 _sporting.py & python3 _efortuna.py & python3 _casa.py & python3 _betfair.py & python3 _betano.py & python3 _admiral.py & python3 _888.py & wait", shell=True)
+        ## MULTI PROCESSING
+        subprocess.run("python3 _unibet.py & python3 _super.py & python3 _stanley.py & python3 _sporting.py & python3 _efortuna.py & python3 _casa.py & python3 _betfair.py & python3 _betano.py & python3 _admiral.py & python3 _888.py & wait", shell=True)
 
-    ## MANUAL PROCESSING
-    print('Starting to Scrape 888')
-    # 888 SPORT # BUGOS - KELL MENU NYITOGATOT CSINALNI - NEM FONTOS
-    LINK = 'https://www.888sport.ro/fotbal/#/filter/football'
-    rows = "//li[contains(@class,'KambiBC-event-item')]"
-    Scrape(LINK, rows)
-    print('Finished Scraping 888')
-    print('Starting to Scrape admiral')
-    ### ADMIRAL
-    LINK = 'https://www.admiral.ro/ro/sporturi#sports-hub/football/romania/liga_i'
-    rows = "//li[@class='KambiBC-sandwich-filter__event-list-item']"
-    Scrape(LINK, rows)
-    print('Finished Scraping admiral')
-    # betano
-    print('Starting to Scrape Betano')
-    LINK = 'https://ro.betano.com/sport/fotbal/urmatoarele-12-ore/'
-    rows = "//tr[@class='events-list__grid__event']"
-    rows = "//tr[contains(@data-qa,'pre-event')]"
-    Scrape(LINK, rows)
-    print('Finished Scraping Betano')
-    print('Starting to Scrape Betfair')
-    LINK = 'https://www.betfair.ro/sport/football'
-    rows = "//li[contains(@class,'com-coupon-line')]"
-    Scrape(LINK, rows)
-    print('Finished Scraping Betfair')
-    # CASA PARIURILOR
-    LINK = 'https://www.casapariurilor.ro/pariuri-online/fotbal'
-    rows = "//tr[@class='tablesorter-hasChildRow']"
-    Scrape(LINK, rows)
-    ## EFORTUNA # BUGGOS # NINCS CSAPAT NEV
-    LINK = "https://efortuna.ro/pariuri-online/fotbal"
-    rows = "//tr[@class='tablesorter-hasChildRow']"
-    Scrape(LINK, rows)
-    print('Starting to Scrape SPORTINGBET')
-    # SPORTINGBET
-    LINK = "https://sports.sportingbet.ro/ro/sports/fotbal-4/ast%C4%83zi"
-    rows = "//div[@class='grid-event-wrapper']"
-    Scrape(LINK, rows)
-    print('Finished Scraping SPORTINGBET')
+        preparedData = {}
+        bookies = os.listdir('_temp')
+        for booki in bookies:
+            data = pickle.load(open('_temp' + booki, 'rb'))
+            preparedData[booki] = data
 
-    ## STANLEYBET -- NINCS LINK
-    LINK = 'https://www.stanleybet.ro/pariuri-sportive#filter/football'
-    rows = "//div[@class='KambiBC-event-item__event-wrapper']"
-    Scrape(LINK, rows)
-    print('Starting to Scrape SUPERBET')
+        listList = list(itertools.product(preparedData, preparedData, preparedData))
+        y = [s for s in listList if s[0] != s[1] and s[1] != s[2] and s[0] != s[2]]
 
-    # SUPERBET -- ODDS ARE SHOWN AS DUPLICATES
-    LINK = 'https://superbet.ro/pariuri-sportive/fotbal'
-    rows = "//div[@class='event-row']"
-    Scrape(LINK, rows)
-    #
-    print('Starting to Scrape UniBet')
-    LINK = 'https://www.unibet.ro/betting/sports/starting-soon'
-    rows = "//li[@class='KambiBC-sandwich-filter__event-list-item']"
-    Scrape(LINK, rows)
-    print('Finished Scraping UniBet')
+       # for boo in y:
+       #     matchTeams(boo, preparedData)
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            for boo in y:
+                executor.submit(matchTeams, boo, preparedData)
+        #     partial_sum_four = functools.partial(matchTeams, y, preparedData)
+        #     executor.submit(matchTeams, partial_sum_four)
 
-    preparedData = {}
-    bookies = os.listdir('_temp')
-    for booki in bookies:
-        data = pickle.load(open(booki, 'rb'))
-        preparedData[booki] = data
-
-    listList = list(itertools.product(preparedData, preparedData, preparedData))
-    y = [s for s in listList if s[0] != s[1] and s[1] != s[2] and s[0] != s[2]]
-
-   # for boo in y:
-   #     matchTeams(boo, preparedData)
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        for boo in y:
-            executor.submit(matchTeams, boo, preparedData)
-    #     partial_sum_four = functools.partial(matchTeams, y, preparedData)
-    #     executor.submit(matchTeams, partial_sum_four)
-
-    t2 = time.perf_counter()
-    print(f'Finished in {t2 - t1} seconds')
+        t2 = time.perf_counter()
+        print(f'Finished in {t2 - t1} seconds')
 
