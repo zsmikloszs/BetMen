@@ -21,10 +21,10 @@ def Scrape(LINK, rows):
  #   options.add_argument("window-size=2560,1080")
     #options.headless = True
   #  options.add_argument('--headless')
-  #  options.add_argument('--no-sandbox')
-  #  options.add_argument('--disable-dev-shm-usage')
-    path = r'/root/username/1/chromedriver'  # introduce your file's path inside '...'
-    path = r'chromedriver.exe'
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    path = r'/home/username/1/chromedriver'  # introduce your file's path inside '...'
+  #  path = r'chromedriver.exe'
     driver = webdriver.Chrome(path, options=options)
     #driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
