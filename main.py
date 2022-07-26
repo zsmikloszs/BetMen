@@ -13,24 +13,6 @@ import shutil
 import mysql.connector
 from mysql.connector import Error
 
-try:
-    connection = mysql.connector.connect(host='localhost',
-                                         database='asd',
-                                         user='root',
-                                         password='root')
-    if connection.is_connected():
-        db_Info = connection.get_server_info()
-        print("Connected to MySQL Server version ", db_Info)
-        cursor = connection.cursor()
-        cursor.execute("select database();")
-        record = cursor.fetchone()
-        print("You're connected to database: ", record)
-
-except Error as e:
-    print("Error while connecting to MySQL", e)
-
-
-
 dict_surebet= {}
 total_stake = 500 # RON
 
@@ -51,7 +33,21 @@ def telegram_bot_sendtext(bot_message):
    return response.json()
 
 def surebet(frame, dictName):
+    try:
+        connection = mysql.connector.connect(host='localhost',
+                                             database='asd',
+                                             user='root',
+                                             password='root')
+        if connection.is_connected():
+            db_Info = connection.get_server_info()
+            print("Connected to MySQL Server version ", db_Info)
+            cursor = connection.cursor()
+            cursor.execute("select database();")
+            record = cursor.fetchone()
+            print("You're connected to database: ", record)
 
+    except Error as e:
+        print("Error while connecting to MySQL", e)
     frame[['1x2_1_a', '1x2_X_a', '1x2_2_a']] = frame['1x2_x'].apply(lambda x: x.split('\n')).apply(pd.Series).astype(
         float)
     frame[['1x2_1_b', '1x2_X_b', '1x2_2_b']] = frame['1x2_y'].apply(lambda x: x.split('\n')).apply(pd.Series).astype(
@@ -100,12 +96,6 @@ def surebet(frame, dictName):
             val = (teams, bookiesAll, results['Benefit1'], odds)
             cursor.execute(sql, val)
             if not cursor.fetchone()[0]:
-                if float(results['Benefit1']) >= 3:
-                    telegram_bot_sendtext(f"Benefit {results['Benefit1']} and {results['Profit1']} RON profit on every {total_stake} RON with:\n"
-                                          f"- {bookiesA} -\n    OD 1: {odds1}    PUT:{results['Stakes1']} RON\n    {teamsA}\n    EXPECTED PAYOUT: {results['Payout1']} RON\nLINK: \n\n"
-                                          f"- {bookiesB} -\n    OD X: {odds2}    PUT:{results['Stakes2']} RON\n    {teamsB}\n    EXPECTED PAYOUT: {results['Payout2']} RON\nLINK: \n\n"
-                                          f"- {bookiesC} -\n    OD 2: {odds3}    PUT:{results['Stakes3']} RON\n    {teamsC}\n    EXPECTED PAYOUT: {results['Payout3']} RON\nLINK: \n\n")
-            else:
                 if float(results['Benefit1']) >= 3:
                     telegram_bot_sendtext(
                         f"Benefit {results['Benefit1']} and {results['Profit1']} RON profit on every {total_stake} RON with:\n"
