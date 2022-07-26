@@ -10,10 +10,34 @@ import requests
 import os
 import datetime
 import shutil
+import mysql.connector
+from mysql.connector import Error
+
+try:
+    connection = mysql.connector.connect(host='localhost',
+                                         database='superScraper',
+                                         user='root',
+                                         password='root')
+    if connection.is_connected():
+        db_Info = connection.get_server_info()
+        print("Connected to MySQL Server version ", db_Info)
+        cursor = connection.cursor()
+        cursor.execute("select database();")
+        record = cursor.fetchone()
+        print("You're connected to database: ", record)
+
+except Error as e:
+    print("Error while connecting to MySQL", e)
+
 
 
 dict_surebet= {}
 total_stake = 500 # RON
+
+
+
+
+
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -55,7 +79,7 @@ def surebet(frame, dictName):
             bookiesA = bookies[0].replace('_', '').replace('temp/', '')
             bookiesB = bookies[1].replace('_', '').replace('temp/', '')
             bookiesC = bookies[2].replace('_', '').replace('temp/', '')
-
+            bookiesAll = bookiesA + bookiesB + bookiesC
             results = beat_bookies(odds1, odds2, odds3, total_stake)
             if float(results['Benefit1'].replace('%', '')) >= 3:
                 telegram_bot_sendtext(
@@ -71,19 +95,23 @@ def surebet(frame, dictName):
             seconds = difference.total_seconds()
             teams = str(teamsA+teamsB+teamsC)
 
-            df = pd.read_csv('_stats.csv')
-            for index, row in df.iterrows():
-                if teams in row['Teams'] and results['Benefit1'] not in row['Benefit'] and odds not in row['LAY_MIDDLE_BACK']:
-                    if float(results['Benefit1']) >= 5:
-                        telegram_bot_sendtext(f"Benefit {results['Benefit1']} and {results['Profit1']} RON profit on every {total_stake} RON with:\n"
-                                              f"- {bookiesA} -\n    OD 1: {odds1}    PUT:{results['Stakes1']} RON\n    {teamsA}\n    EXPECTED PAYOUT: {results['Payout1']} RON\nLINK: \n\n"
-                                              f"- {bookiesB} -\n    OD X: {odds2}    PUT:{results['Stakes2']} RON\n    {teamsB}\n    EXPECTED PAYOUT: {results['Payout2']} RON\nLINK: \n\n"
-                                              f"- {bookiesC} -\n    OD 2: {odds3}    PUT:{results['Stakes3']} RON\n    {teamsC}\n    EXPECTED PAYOUT: {results['Payout3']} RON\nLINK: \n\n")
 
-                    dicta = {'Teams': teams, 'Benefit': results['Benefit1'], 'LAY_MIDDLE_BACK': odds, 'First Seen': firstSeen.isoformat(),
-                            'LastSeen': lastSeen.isoformat(), 'Elapsed Time': seconds}
-                    dicta = pd.DataFrame(dicta, index = [0])
-                    dicta.to_csv('_stats.csv', mode='a', index=False, header=False)
+            sql = "SELECT COUNT(1) FROM surebets WHERE teams = %s AND bookies = %s AND benefit = %s AND odds = %s"
+            val = (teams, bookiesAll, results['Benefit1'], odds)
+            cursor.execute(sql, val)
+            if not cursor.fetchone()[0]:
+                if float(results['Benefit1']) >= 3:
+                    telegram_bot_sendtext(f"Benefit {results['Benefit1']} and {results['Profit1']} RON profit on every {total_stake} RON with:\n"
+                                          f"- {bookiesA} -\n    OD 1: {odds1}    PUT:{results['Stakes1']} RON\n    {teamsA}\n    EXPECTED PAYOUT: {results['Payout1']} RON\nLINK: \n\n"
+                                          f"- {bookiesB} -\n    OD X: {odds2}    PUT:{results['Stakes2']} RON\n    {teamsB}\n    EXPECTED PAYOUT: {results['Payout2']} RON\nLINK: \n\n"
+                                          f"- {bookiesC} -\n    OD 2: {odds3}    PUT:{results['Stakes3']} RON\n    {teamsC}\n    EXPECTED PAYOUT: {results['Payout3']} RON\nLINK: \n\n")
+
+                dicta = {'Teams': teams, 'Benefit': results['Benefit1'], 'LAY_MIDDLE_BACK': odds, 'First Seen': firstSeen.isoformat(),
+                        'LastSeen': lastSeen.isoformat(), 'Elapsed Time': seconds}
+                sql = "INSERT INTO `surebets`(`teams`, `bookies`, `odds`, `benefit`, `fristSeen`, `lastSeen`) VALUES (%s, %s, %s, %s, %s, %s)"
+                val = (teams, bookies, odds, results['Benefit1'], firstSeen, lastSeen)
+                cursor.execute(sql, val)
+                connection.commit()
     return frame
 
 
