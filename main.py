@@ -106,6 +106,7 @@ def surebet(frame, dictName):
                 val = (teams, bookies, odds, results['Benefit1'], firstSeen, lastSeen)
                 cursor.execute(sql, val)
                 connection.commit()
+    connection.close()
     return frame
 
 
