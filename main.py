@@ -189,35 +189,35 @@ def matchTeams(bookie, preparedData):
 
 if __name__ == '__main__':
         while True:
-        t1 = time.perf_counter()
+            t1 = time.perf_counter()
 
-        ## MULTI PROCESSING
-        try:
+            ## MULTI PROCESSING
+            try:
+                os.mkdir('_temp')
+            except:
+                pass
+            subprocess.run("python3 _unibet.py & python3 _super.py & python3 _stanley.py & python3 _sporting.py & python3 _efortuna.py & python3 _casa.py & python3 _betfair.py & python3 _betano.py & python3 _admiral.py & python3 _888.py & wait", shell=True)
+
+            preparedData = {}
+            bookies = os.listdir('_temp')
+            for booki in bookies:
+                data = pickle.load(open('_temp' + booki, 'rb'))
+                if not data.empty:
+                    preparedData[booki] = data
+
+            listList = list(itertools.product(preparedData, preparedData, preparedData))
+            y = [s for s in listList if s[0] != s[1] and s[1] != s[2] and s[0] != s[2]]
+
+           # for boo in y:
+           #     matchTeams(boo, preparedData)
+            with concurrent.futures.ProcessPoolExecutor() as executor:
+                for boo in y:
+                    executor.submit(matchTeams, boo, preparedData)
+            #     partial_sum_four = functools.partial(matchTeams, y, preparedData)
+            #     executor.submit(matchTeams, partial_sum_four)
+
+            t2 = time.perf_counter()
+            os.rmdir('_temp')
             os.mkdir('_temp')
-        except:
-            pass
-        subprocess.run("python3 _unibet.py & python3 _super.py & python3 _stanley.py & python3 _sporting.py & python3 _efortuna.py & python3 _casa.py & python3 _betfair.py & python3 _betano.py & python3 _admiral.py & python3 _888.py & wait", shell=True)
-
-        preparedData = {}
-        bookies = os.listdir('_temp')
-        for booki in bookies:
-            data = pickle.load(open('_temp' + booki, 'rb'))
-            if not data.empty:
-                preparedData[booki] = data
-
-        listList = list(itertools.product(preparedData, preparedData, preparedData))
-        y = [s for s in listList if s[0] != s[1] and s[1] != s[2] and s[0] != s[2]]
-
-       # for boo in y:
-       #     matchTeams(boo, preparedData)
-        with concurrent.futures.ProcessPoolExecutor() as executor:
-            for boo in y:
-                executor.submit(matchTeams, boo, preparedData)
-        #     partial_sum_four = functools.partial(matchTeams, y, preparedData)
-        #     executor.submit(matchTeams, partial_sum_four)
-
-        t2 = time.perf_counter()
-        os.rmdir('_temp')
-        os.mkdir('_temp')
-        print(f'Finished in {t2 - t1} seconds')
+            print(f'Finished in {t2 - t1} seconds')
 
