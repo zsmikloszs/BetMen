@@ -63,6 +63,26 @@ def surebet(frame, dictName):
                     f"- {bookiesB} -\n    OD X: {odds2}    PUT:{results['Stakes2']} RON\n    {teamsB}\n    EXPECTED PAYOUT: {results['Payout2']} RON\nLINK: \n\n"
                     f"- {bookiesC} -\n    OD 2: {odds3}    PUT:{results['Stakes3']} RON\n    {teamsC}\n    EXPECTED PAYOUT: {results['Payout3']} RON\nLINK: \n\n")
 
+            odds = ' '.join(str(od) for od in [odds1,odds2,odds3])
+            firstSeen = datetime.datetime.now()
+            lastSeen = firstSeen
+            difference = lastSeen - firstSeen
+            seconds = difference.total_seconds()
+            teams = str(teamsA+teamsB+teamsC)
+
+            df = pd.read_csv('_stats.csv')
+            for index, row in df.iterrows():
+                if teams in row['Teams'] and results['Benefit1'] not in row['Benefit'] and odds not in row['LAY_MIDDLE_BACK']:
+                    if float(results['Benefit1']) >= 5:
+                        telegram_bot_sendtext(f"Benefit {results['Benefit1']} and {results['Profit1']} RON profit on every {total_stake} RON with:\n"
+                                              f"- {bookiesA} -\n    OD 1: {odds1}    PUT:{results['Stakes1']} RON\n    {teamsA}\n    EXPECTED PAYOUT: {results['Payout1']} RON\nLINK: \n\n"
+                                              f"- {bookiesB} -\n    OD X: {odds2}    PUT:{results['Stakes2']} RON\n    {teamsB}\n    EXPECTED PAYOUT: {results['Payout2']} RON\nLINK: \n\n"
+                                              f"- {bookiesC} -\n    OD 2: {odds3}    PUT:{results['Stakes3']} RON\n    {teamsC}\n    EXPECTED PAYOUT: {results['Payout3']} RON\nLINK: \n\n")
+
+                    dicta = {'Teams': teams, 'Benefit': results['Benefit1'], 'LAY_MIDDLE_BACK': odds, 'First Seen': firstSeen.isoformat(),
+                            'LastSeen': lastSeen.isoformat(), 'Elapsed Time': seconds}
+                    dicta = pd.DataFrame(dicta, index = [0])
+                    dicta.to_csv('_stats.csv', mode='a', index=False, header=False)
     return frame
 
 
@@ -84,25 +104,6 @@ def prettyResults(dict_surebet, frame, result, od1, odX, od2):
 
     results = beat_bookies(odds1, odds2, odds3, total_stake)
 
-    odds = ' '.join(str(od) for od in [odds1,odds2,odds3])
-    firstSeen = datetime.datetime.now()
-    lastSeen = firstSeen
-    difference = lastSeen - firstSeen
-    seconds = difference.total_seconds()
-
-    df = pd.read_csv('_stats.csv')
-    for index, row in df.iterrows():
-        if teams in row['Teams'] and results['Benefit1'] not in row['Benefit'] and odds not in row['LAY_MIDDLE_BACK']:
-            if float(results['Benefit1']) >= 5:
-                telegram_bot_sendtext(f"Benefit {results['Benefit1']} and {results['Profit1']} RON profit on every {total_stake} RON with:\n"
-                                      f"- {bookiesA} -\n    OD 1: {odds1}    PUT:{results['Stakes1']} RON\n    {teamsA}\n    EXPECTED PAYOUT: {results['Payout1']} RON\nLINK: \n\n"
-                                      f"- {bookiesB} -\n    OD X: {odds2}    PUT:{results['Stakes2']} RON\n    {teamsB}\n    EXPECTED PAYOUT: {results['Payout2']} RON\nLINK: \n\n"
-                                      f"- {bookiesC} -\n    OD 2: {odds3}    PUT:{results['Stakes3']} RON\n    {teamsC}\n    EXPECTED PAYOUT: {results['Payout3']} RON\nLINK: \n\n")
-
-            dicta = {'Teams': teams, 'Benefit': "results['Benefit1']", 'LAY_MIDDLE_BACK': odds, 'First Seen': firstSeen.isoformat(),
-                    'LastSeen': lastSeen.isoformat(), 'Elapsed Time': seconds}
-            dicta = pd.DataFrame(dicta, index = [0])
-            dicta.to_csv('_stats.csv', mode='a', index=False, header=False)
 #
 #
 #             odds = ' '.join(str(od) for od in [odds1,odds2,odds3])
@@ -195,13 +196,14 @@ if __name__ == '__main__':
             try:
                 os.mkdir('_temp')
             except:
-                pass
+                shutil.rmtree('_temp')
+                os.mkdir('_temp')
             subprocess.run("python3 _unibet.py & python3 _super.py & python3 _stanley.py & python3 _sporting.py & python3 _efortuna.py & python3 _casa.py & python3 _betfair.py & python3 _betano.py & python3 _admiral.py & python3 _888.py & wait", shell=True)
 
             preparedData = {}
             bookies = os.listdir('_temp')
             for booki in bookies:
-                data = pickle.load(open('_temp' + booki, 'rb'))
+                data = pickle.load(open('_temp/' + booki, 'rb'))
                 if not data.empty:
                     preparedData[booki] = data
 
@@ -217,7 +219,5 @@ if __name__ == '__main__':
             #     executor.submit(matchTeams, partial_sum_four)
 
             t2 = time.perf_counter()
-            os.rmdir('_temp')
-            os.mkdir('_temp')
             print(f'Finished in {t2 - t1} seconds')
 
