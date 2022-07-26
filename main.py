@@ -9,6 +9,7 @@ import concurrent.futures
 import requests
 import os
 import datetime
+import shutil
 
 
 dict_surebet= {}
@@ -56,7 +57,7 @@ def surebet(frame, dictName):
             bookiesC = bookies[2].replace('_', '').replace('temp/', '')
 
             results = beat_bookies(odds1, odds2, odds3, total_stake)
-            if float(results['Benefit1'].replace('%', '')) >= 10:
+            if float(results['Benefit1'].replace('%', '')) >= 3:
                 telegram_bot_sendtext(
                     f"Benefit {results['Benefit1']} and {results['Profit1']} RON profit on every {total_stake} RON with:\n"
                     f"- {bookiesA} -\n    OD 1: {odds1}    PUT:{results['Stakes1']} RON\n    {teamsA}\n    EXPECTED PAYOUT: {results['Payout1']} RON\nLINK: \n\n"

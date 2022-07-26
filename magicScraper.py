@@ -69,7 +69,7 @@ def Scrape(LINK, rows):
     driver.get(LINK)
     time.sleep(35)
     time.sleep(5)
-    if bookie == 'www.unibet.ro':
+    if 'unibet.ro' in bookie:
         driver.find_element(By.XPATH, "//button[text()='Permitere toate']").click()
     ### WAIT UNTIL ROW APPEARS !!!
     lines = driver.find_elements(By.XPATH, rows)
@@ -85,10 +85,10 @@ def Scrape(LINK, rows):
         if teams is None:
             # ADD STAT
             continue
-        if bookie == 'www.betfair.ro':
+        if 'betfair.ro' in bookie:
             if len(odds) > 3:
                 odds = odds[-3:]
-        if bookie == 'superbet.ro':
+        if 'superbet.ro' in bookie:
             odds = list(dict.fromkeys(odds))
 
 
