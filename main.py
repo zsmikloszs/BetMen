@@ -8,6 +8,7 @@ import time
 import concurrent.futures
 import requests
 import os
+import datetime
 
 
 dict_surebet= {}
@@ -18,13 +19,10 @@ pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
 def telegram_bot_sendtext(bot_message):
-
    bot_token = '5559348678:AAE5F3A0YiY9rn6lko1Rd3NI9G2SVazS_hQ'
    bot_chatID = '5213933251'
    send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + bot_chatID + '&parse_mode=Markdown&text=' + str(bot_message)
-
    response = requests.get(send_text)
-
    return response.json()
 
 def surebet(frame, dictName):
@@ -82,24 +80,33 @@ def prettyResults(dict_surebet, frame, result, od1, odX, od2):
     bookiesA = bookies[0].replace('_', '').replace('temp/', '')
     bookiesB = bookies[1].replace('_', '').replace('temp/', '')
     bookiesC = bookies[2].replace('_', '').replace('temp/', '')
+    teams = teamsA + teamsB + teamsC
 
     results = beat_bookies(odds1, odds2, odds3, total_stake)
-    if float(results['Benefit1']) >= 5:
 
-        telegram_bot_sendtext(f"Benefit {results['Benefit1']} and {results['Profit1']} RON profit on every {total_stake} RON with:\n"
-                              f"- {bookiesA} -\n    OD 1: {odds1}    PUT:{results['Stakes1']} RON\n    {teamsA}\n    EXPECTED PAYOUT: {results['Payout1']} RON\nLINK: \n\n"
-                              f"- {bookiesB} -\n    OD X: {odds2}    PUT:{results['Stakes2']} RON\n    {teamsB}\n    EXPECTED PAYOUT: {results['Payout2']} RON\nLINK: \n\n"
-                              f"- {bookiesC} -\n    OD 2: {odds3}    PUT:{results['Stakes3']} RON\n    {teamsC}\n    EXPECTED PAYOUT: {results['Payout3']} RON\nLINK: \n\n")
+    odds = ' '.join(str(od) for od in [odds1,odds2,odds3])
+    firstSeen = datetime.datetime.now()
+    lastSeen = firstSeen
+    difference = lastSeen - firstSeen
+    seconds = difference.total_seconds()
 
-#            firstSeen = datetime.datetime.now()
-#            lastSeen = firstSeen
+    df = pd.read_csv('_stats.csv')
+    for index, row in df.iterrows():
+        if teams in row['Teams'] and results['Benefit1'] not in row['Benefit'] and odds not in row['LAY_MIDDLE_BACK']:
+            if float(results['Benefit1']) >= 5:
+                telegram_bot_sendtext(f"Benefit {results['Benefit1']} and {results['Profit1']} RON profit on every {total_stake} RON with:\n"
+                                      f"- {bookiesA} -\n    OD 1: {odds1}    PUT:{results['Stakes1']} RON\n    {teamsA}\n    EXPECTED PAYOUT: {results['Payout1']} RON\nLINK: \n\n"
+                                      f"- {bookiesB} -\n    OD X: {odds2}    PUT:{results['Stakes2']} RON\n    {teamsB}\n    EXPECTED PAYOUT: {results['Payout2']} RON\nLINK: \n\n"
+                                      f"- {bookiesC} -\n    OD 2: {odds3}    PUT:{results['Stakes3']} RON\n    {teamsC}\n    EXPECTED PAYOUT: {results['Payout3']} RON\nLINK: \n\n")
+
+            dicta = {'Teams': teams, 'Benefit': "results['Benefit1']", 'LAY_MIDDLE_BACK': odds, 'First Seen': firstSeen.isoformat(),
+                    'LastSeen': lastSeen.isoformat(), 'Elapsed Time': seconds}
+            dicta = pd.DataFrame(dicta, index = [0])
+            dicta.to_csv('_stats.csv', mode='a', index=False, header=False)
 #
-#                difference = lastSeen - firstSeen
-##               seconds = difference.total_seconds()
+#
 #             odds = ' '.join(str(od) for od in [odds1,odds2,odds3])
-#            dict = {'Teams': [teams], 'Benefit': '39%','LAY_MIDDLE_BACK': [odds], 'First Seen': firstSeen.isoformat(),'LastSeen': lastSeen.isoformat(), 'Elapsed Time': seconds}
-#           dict = pd.DataFrame(dict)
-#          dict.to_csv('_stats.csv', mode='a', index=False, header=False)
+
 
 
 # def continueWorkingWithStats():
@@ -185,13 +192,18 @@ if __name__ == '__main__':
         t1 = time.perf_counter()
 
         ## MULTI PROCESSING
+        try:
+            os.mkdir('_temp')
+        except:
+            pass
         subprocess.run("python3 _unibet.py & python3 _super.py & python3 _stanley.py & python3 _sporting.py & python3 _efortuna.py & python3 _casa.py & python3 _betfair.py & python3 _betano.py & python3 _admiral.py & python3 _888.py & wait", shell=True)
 
         preparedData = {}
         bookies = os.listdir('_temp')
         for booki in bookies:
             data = pickle.load(open('_temp' + booki, 'rb'))
-            preparedData[booki] = data
+            if not data.empty:
+                preparedData[booki] = data
 
         listList = list(itertools.product(preparedData, preparedData, preparedData))
         y = [s for s in listList if s[0] != s[1] and s[1] != s[2] and s[0] != s[2]]
@@ -205,5 +217,7 @@ if __name__ == '__main__':
         #     executor.submit(matchTeams, partial_sum_four)
 
         t2 = time.perf_counter()
+        os.rmdir('_temp')
+        os.mkdir('_temp')
         print(f'Finished in {t2 - t1} seconds')
 

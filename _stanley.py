@@ -2,7 +2,7 @@ from magicScraper import *
 
 if __name__ == '__main__':
     #
-    print('Starting to Scrape casapariurilor')
+    print('Starting to Scrape STANLEY')
 
     ## STANLEYBET -- NINCS LINK
     LINK = 'https://www.stanleybet.ro/pariuri-sportive#filter/football'
@@ -10,4 +10,4 @@ if __name__ == '__main__':
     Scrape(LINK, rows)
 
 
-    print('Finished Scraping casapariurilor')
+    print('Finished Scraping STANLEY')
