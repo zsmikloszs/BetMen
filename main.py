@@ -15,7 +15,7 @@ from mysql.connector import Error
 
 try:
     connection = mysql.connector.connect(host='localhost',
-                                         database='superScraper',
+                                         database='asd',
                                          user='root',
                                          password='root')
     if connection.is_connected():
@@ -105,9 +105,13 @@ def surebet(frame, dictName):
                                           f"- {bookiesA} -\n    OD 1: {odds1}    PUT:{results['Stakes1']} RON\n    {teamsA}\n    EXPECTED PAYOUT: {results['Payout1']} RON\nLINK: \n\n"
                                           f"- {bookiesB} -\n    OD X: {odds2}    PUT:{results['Stakes2']} RON\n    {teamsB}\n    EXPECTED PAYOUT: {results['Payout2']} RON\nLINK: \n\n"
                                           f"- {bookiesC} -\n    OD 2: {odds3}    PUT:{results['Stakes3']} RON\n    {teamsC}\n    EXPECTED PAYOUT: {results['Payout3']} RON\nLINK: \n\n")
-
-                dicta = {'Teams': teams, 'Benefit': results['Benefit1'], 'LAY_MIDDLE_BACK': odds, 'First Seen': firstSeen.isoformat(),
-                        'LastSeen': lastSeen.isoformat(), 'Elapsed Time': seconds}
+            else:
+                if float(results['Benefit1']) >= 3:
+                    telegram_bot_sendtext(
+                        f"Benefit {results['Benefit1']} and {results['Profit1']} RON profit on every {total_stake} RON with:\n"
+                        f"- {bookiesA} -\n    OD 1: {odds1}    PUT:{results['Stakes1']} RON\n    {teamsA}\n    EXPECTED PAYOUT: {results['Payout1']} RON\nLINK: \n\n"
+                        f"- {bookiesB} -\n    OD X: {odds2}    PUT:{results['Stakes2']} RON\n    {teamsB}\n    EXPECTED PAYOUT: {results['Payout2']} RON\nLINK: \n\n"
+                        f"- {bookiesC} -\n    OD 2: {odds3}    PUT:{results['Stakes3']} RON\n    {teamsC}\n    EXPECTED PAYOUT: {results['Payout3']} RON\nLINK: \n\n")
                 sql = "INSERT INTO `surebets`(`teams`, `bookies`, `odds`, `benefit`, `fristSeen`, `lastSeen`) VALUES (%s, %s, %s, %s, %s, %s)"
                 val = (teams, bookies, odds, results['Benefit1'], firstSeen, lastSeen)
                 cursor.execute(sql, val)
