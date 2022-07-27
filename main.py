@@ -16,9 +16,21 @@ from mysql.connector import Error
 dict_surebet= {}
 total_stake = 500 # RON
 
+try:
+    connection = mysql.connector.connect(host='localhost',
+                                         database='asd',
+                                         user='root',
+                                         password='root')
+    if connection.is_connected():
+        db_Info = connection.get_server_info()
+        print("Connected to MySQL Server version ", db_Info)
+        cursor = connection.cursor()
+        cursor.execute("select database();")
+        record = cursor.fetchone()
+        print("You're connected to database: ", record)
 
-
-
+except Error as e:
+    print("Error while connecting to MySQL", e)
 
 
 pd.set_option('display.max_rows', 500)
@@ -33,21 +45,7 @@ def telegram_bot_sendtext(bot_message):
    return response.json()
 
 def surebet(frame, dictName):
-    try:
-        connection = mysql.connector.connect(host='localhost',
-                                             database='asd',
-                                             user='root',
-                                             password='root')
-        if connection.is_connected():
-            db_Info = connection.get_server_info()
-            print("Connected to MySQL Server version ", db_Info)
-            cursor = connection.cursor()
-            cursor.execute("select database();")
-            record = cursor.fetchone()
-            print("You're connected to database: ", record)
 
-    except Error as e:
-        print("Error while connecting to MySQL", e)
     frame[['1x2_1_a', '1x2_X_a', '1x2_2_a']] = frame['1x2_x'].apply(lambda x: x.split('\n')).apply(pd.Series).astype(
         float)
     frame[['1x2_1_b', '1x2_X_b', '1x2_2_b']] = frame['1x2_y'].apply(lambda x: x.split('\n')).apply(pd.Series).astype(
@@ -75,15 +73,8 @@ def surebet(frame, dictName):
             bookiesA = bookies[0].replace('_', '').replace('temp/', '')
             bookiesB = bookies[1].replace('_', '').replace('temp/', '')
             bookiesC = bookies[2].replace('_', '').replace('temp/', '')
-            bookiesAll = bookiesA + bookiesB + bookiesC
+            bookiesAll = ' '.join([bookiesA + bookiesB + bookiesC])
             results = beat_bookies(odds1, odds2, odds3, total_stake)
-            if float(results['Benefit1'].replace('%', '')) >= 3:
-                telegram_bot_sendtext(
-                    f"Benefit {results['Benefit1']} and {results['Profit1']} RON profit on every {total_stake} RON with:\n"
-                    f"- {bookiesA} -\n    OD 1: {odds1}    PUT:{results['Stakes1']} RON\n    {teamsA}\n    EXPECTED PAYOUT: {results['Payout1']} RON\nLINK: \n\n"
-                    f"- {bookiesB} -\n    OD X: {odds2}    PUT:{results['Stakes2']} RON\n    {teamsB}\n    EXPECTED PAYOUT: {results['Payout2']} RON\nLINK: \n\n"
-                    f"- {bookiesC} -\n    OD 2: {odds3}    PUT:{results['Stakes3']} RON\n    {teamsC}\n    EXPECTED PAYOUT: {results['Payout3']} RON\nLINK: \n\n")
-
             odds = ' '.join(str(od) for od in [odds1,odds2,odds3])
             firstSeen = datetime.datetime.now()
             lastSeen = firstSeen
@@ -93,73 +84,21 @@ def surebet(frame, dictName):
 
 
             sql = "SELECT COUNT(1) FROM surebets WHERE teams = %s AND bookies = %s AND benefit = %s AND odds = %s"
-            val = (teams, bookiesAll, results['Benefit1'], odds)
+            val = (str(teams), str(bookiesAll), results['Benefit1'], str(odds))
             cursor.execute(sql, val)
             if not cursor.fetchone()[0]:
-                if float(results['Benefit1']) >= 3:
+                if float(results['Benefit1'].replace('%', '')) >= 3:
                     telegram_bot_sendtext(
                         f"Benefit {results['Benefit1']} and {results['Profit1']} RON profit on every {total_stake} RON with:\n"
                         f"- {bookiesA} -\n    OD 1: {odds1}    PUT:{results['Stakes1']} RON\n    {teamsA}\n    EXPECTED PAYOUT: {results['Payout1']} RON\nLINK: \n\n"
                         f"- {bookiesB} -\n    OD X: {odds2}    PUT:{results['Stakes2']} RON\n    {teamsB}\n    EXPECTED PAYOUT: {results['Payout2']} RON\nLINK: \n\n"
                         f"- {bookiesC} -\n    OD 2: {odds3}    PUT:{results['Stakes3']} RON\n    {teamsC}\n    EXPECTED PAYOUT: {results['Payout3']} RON\nLINK: \n\n")
-                sql = "INSERT INTO `surebets`(`teams`, `bookies`, `odds`, `benefit`, `fristSeen`, `lastSeen`) VALUES (%s, %s, %s, %s, %s, %s)"
-                val = (teams, bookies, odds, results['Benefit1'], firstSeen, lastSeen)
-                cursor.execute(sql, val)
-                connection.commit()
-    connection.close()
+                    sql = "INSERT INTO `surebets`(`teams`, `bookies`, `odds`, `benefit`, `fristSeen`, `lastSeen`) VALUES (%s, %s, %s, %s, %s, %s)"
+                    val = (str(teams), str(bookiesAll), str(odds), results['Benefit1'], firstSeen, lastSeen)
+                    print(f'teams={str(teams)}\nbookies={str(bookies)}\nodds={str(odds)}')
+                    cursor.execute(sql, val)
+                    connection.commit()
     return frame
-
-
-def prettyResults(dict_surebet, frame, result, od1, odX, od2):
-    total_stake = 500
-
-    bookies = frame.split('\n')
-    odds1 = float(dict_surebet[frame].at[i, od1])
-    odds2 = float(dict_surebet[frame].at[i, odX])
-    odds3 = float(dict_surebet[frame].at[i, od2])
-    oddsList = '\n'.join([str(odds1), str(odds2), str(odds3)])
-    teamsA = dict_surebet[frame].at[i, 'Teams_x'].replace('\n', '  -  ')
-    teamsB = dict_surebet[frame].at[i, 'Teams_y'].replace('\n', '  -  ')
-    teamsC = dict_surebet[frame].at[i, 'Teams'].replace('\n', '  -  ')
-    bookiesA = bookies[0].replace('_', '').replace('temp/', '')
-    bookiesB = bookies[1].replace('_', '').replace('temp/', '')
-    bookiesC = bookies[2].replace('_', '').replace('temp/', '')
-    teams = teamsA + teamsB + teamsC
-
-    results = beat_bookies(odds1, odds2, odds3, total_stake)
-
-#
-#
-#             odds = ' '.join(str(od) for od in [odds1,odds2,odds3])
-
-
-
-# def continueWorkingWithStats():
-#     try:
-#         stats = pd.read_csv('_stats.csv', names=['Teams', 'Benefit', 'LAY_MIDDLE_BACK', 'First Seen', 'LastSeen','Elapsed Time'])
-#     except:
-#        # stats = pd.DataFrame(index=['Teams', 'Benefit', 'LAY_MIDDLE_BACK', 'First Seen', 'LastSeen','Elapsed Time'])
-# stats.to_csv('_stats.csv', mode='wb', index=False, header=True)
-#         dict.to_csv('_stats.csv', mode='a', index=False, header=False)
-#   stats = pd.read_csv('_stats.csv', names=['Teams', 'Benefit', 'LAY_MIDDLE_BACK', 'First Seen', 'LastSeen','Elapsed Time'])
-
-#    if ( teamS in list(stats['Teams'])):###and
-# odds in list(stats['LAY_MIDDLE_BACK']) == odds
-#       firstSeen = datetime.datetime.now()
-#      lastSeen = firstSeen
-#     difference = lastSeen - firstSeen
-#    seconds = difference.total_seconds()
-
-
-#          with open('statsFrame', 'rb*') as output:
-#              bookieData = pickle.load(sureData)
-#        ## ADD RESULT TO statsFrame
-#     elif result in statistics:
-#       lastSeen = datetime.datetime.now()
-#      difference = lastSeen - firstSeen
-#     seconds = difference.total_seconds()
-#    mins = seconds/60
-# find current row and modify last seen to curren time
 
 def beat_bookies(odds1, odds2, odds3, total_stake):
     totalProbability = 1 / odds1 + 1 / odds2 + 1 / odds3
@@ -222,7 +161,7 @@ if __name__ == '__main__':
             except:
                 shutil.rmtree('_temp')
                 os.mkdir('_temp')
-            subprocess.run("python3 _unibet.py & python3 _super.py & python3 _stanley.py & python3 _sporting.py & python3 _efortuna.py & python3 _casa.py & python3 _betfair.py & python3 _betano.py & python3 _admiral.py & python3 _888.py & wait", shell=True)
+           # subprocess.run("python3 _unibet.py & python3 _super.py & python3 _stanley.py & python3 _sporting.py & python3 _efortuna.py & python3 _casa.py & python3 _betfair.py & python3 _betano.py & python3 _admiral.py & python3 _888.py & wait", shell=True)
 
             preparedData = {}
             bookies = os.listdir('_temp')
@@ -238,10 +177,30 @@ if __name__ == '__main__':
            #     matchTeams(boo, preparedData)
             with concurrent.futures.ProcessPoolExecutor() as executor:
                 for boo in y:
-                    executor.submit(matchTeams, boo, preparedData)
+                    executor.submit(matchTeams,boo, preparedData)
             #     partial_sum_four = functools.partial(matchTeams, y, preparedData)
             #     executor.submit(matchTeams, partial_sum_four)
 
             t2 = time.perf_counter()
             print(f'Finished in {t2 - t1} seconds')
 
+def debug():
+    TEAMS = ['Faska1Romaniaaaaa', 'nemteny', 'teny']
+    ODDS = ['11.1\n11.2\n11.3\n', '1.1\n1.2\n1.3\n', '5.1\n3.1\n4.1\n' ]
+    bookie = 'futura.ro'
+    prepareData(TEAMS, ODDS, bookie, '', '1x2', '')
+
+    TEAMS = ['Faska2Hunggggeery', 'nemteny', 'teny']
+    ODDS = ['11.1\n11.2\n11.3\n', '1.1\n1.2\n1.3\n', '5.2\n3.2\n4.2\n' ]
+    bookie = 'kutura.ro'
+    prepareData(TEAMS, ODDS, bookie, '', '1x2', '')
+
+    TEAMS = ['Faska3', 'nemteny', 'teny']
+    ODDS = ['11.1\n11.2\n11.3\n', '1.1\n1.2\n1.3\n', '5.3\n3.3\n4.3\n' ]
+    bookie = 'mutura.ro'
+    preparedData = {}
+    threeWayData = ['mutura.ro', 'kutura.ro', 'futura.ro']
+    prepareData(TEAMS, ODDS, bookie, '', '1x2', '')
+    for three in threeWayData:
+        data=  pickle.load(open('_temp/'+three + '.pkl', 'rb'))
+        preparedData[three] = data
